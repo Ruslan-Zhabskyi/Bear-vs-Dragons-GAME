@@ -1,0 +1,86 @@
+public class Pattern {
+  private float xCoord; //x coordinate of the Pattern
+  private float yCoord; //y coordinate of the Pattern
+  private float diameter; //diameter of the Pattern
+  private float diameterSquareOne; //diameter of the Pattern
+  private float diameterSquareTwo; //diameter of the Pattern
+  
+  public float getXCoord() {
+    return xCoord;
+  }
+  public float getYCoord() {
+    return yCoord;
+  }
+  public float getDiameter() {
+    return diameter;
+  }
+   public float getDiameterSquareOne() {
+    return getDiameterSquareOne;
+  }
+  
+   public float getDiameterSquareTwo() {
+    return getDiameterSquareTwo;
+  }
+  
+  public void setDiameter(float diameter) {
+    if ((diameter>=1) && (diameter<=20)) {
+      this.diameter=diameter;
+    } else {
+      this.diameter = 10;
+    }
+  }
+  
+  public void setDiameterSquareOne(float setDiameterSquareOne) {
+    if ((setDiameterSquareOne>=1) && (setDiameterSquareOne<=20)) {
+      this.setDiameterSquareOne=setDiameterSquareOne;
+    } else {
+      this.setDiameterSquareOne = 10;
+    }
+  }
+  
+  public void setDiameterSquareTwo(float setDiameterSquareTwo) {
+    if ((setDiameterSquareTwo>=1) && (setDiameterSquareTwo<=20)) {
+      this.setDiameterSquareTwo=setDiameterSquareTwo;
+    } else {
+      this.setDiameterSquareTwo = 10;
+    }
+  }
+
+ public void setXCoord(float xCoord) {
+    this.xCoord=xCoord;
+  }
+  public void setYCoord(float yCoord) {
+    this.yCoord=yCoord;
+  }
+  //Constructor of the Pattern
+  
+  public Pattern(float xCoord, float yCoord, float diameter) {
+    setDiameter(diameter);
+    setXCoord(xCoord);
+    setYCoord(yCoord);
+  }
+  //Overloaded constructor
+  public Pattern(float xCoord, float yCoord, float diameterSquareOne, float diameterSquareTwo) {
+    setDiameter(diameter);
+    setXCoord(xCoord);
+    setYCoord(yCoord);
+  }
+  
+  void backgroundChessPattern() {
+
+  for (int i=10; i < 15; i++)
+  {
+    for (int j=0; j < 40; j++)
+    {
+      if ((i + j + 1) % 2 == 0) {
+        fill(255);
+        // if (i + j + 1) % 2 == 0, draw white squares
+        square(xCoord*j, yCoord*i, random(diameterSquareOne)-i); // 40, 2
+      } else
+      {
+        fill(#3370A6);
+        // else, draw blue squares
+        square(xCoord*j, yCoord*i, random(diameterSquareTwo)-i); //40, 1
+      }
+    }
+  }

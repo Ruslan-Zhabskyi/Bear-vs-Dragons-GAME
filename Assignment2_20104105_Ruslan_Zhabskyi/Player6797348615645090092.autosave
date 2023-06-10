@@ -1,0 +1,89 @@
+public class Player
+{
+  private String playerName;
+  private int[] scores;
+  private int count;
+  public Player(String playerName, int numberOfGames)
+  {
+    if (playerName.length() < 6)
+    {
+      this.playerName = playerName;
+    } else
+    {
+      this.playerName = playerName.substring(0, 6);
+    }
+    scores = new int[numberOfGames];
+    count = 0;
+  }
+  
+  public String getPlayerName()
+  {
+    return playerName;
+  }
+
+  public int[] getscores()
+  {
+    return scores;
+  }
+
+  public void setPlayerName(String playerName)
+  {
+    this.playerName = playerName.substring(0, 6);
+  }
+
+  public void setscores(int[] scores)
+  {
+    this.scores = scores;
+  }
+
+  //method to add a score at the next available location in the scores array
+  public void addScore(int score)
+  {
+    if (score >= 0) {
+      scores[count] = score;
+      count++;
+    }
+  }
+
+ 
+  //created highest score with math function
+  
+  public int highestScore()
+  {
+   return max(scores); 
+
+  }
+
+  //method returns the lowest score stored in the scores array
+  //if there is only one element in the scores array, this value is returned as the lowest
+  public int lowestScore()
+  {
+    int lowestScore = scores[0] ;
+    for (int i = 1; i < count; i++) {
+      if (scores[i] < lowestScore) {
+        lowestScore = scores[i];
+      }
+    }
+    return lowestScore;
+  }
+
+  public int averageScore()
+  {
+    int total = 0;
+    for (int i = 0; i < count; i++) {
+      total = total +  scores[i];
+    }
+    return total / count;
+  }
+
+  public String toString()
+  {
+    String str = "Scores for " + playerName + "\n";
+
+    for (int i = 0; i < count; i++) {
+      str = str + "     Score " + (i+1) + ": " + scores[i] + "\n";
+    }
+    return str;
+  }
+  
+}

@@ -1,0 +1,300 @@
+import javax.swing.*;
+
+//Objects
+Hero hero;
+Villain villain;
+Fire fire;
+Player player;
+Rain [] rain = new Rain [3];
+Patern patern;
+
+// booleans for Key Handler
+boolean shoot=false;
+boolean jump=false;
+boolean right=false;
+boolean left=false;
+
+//Game data
+int liveLost = 0;
+int score = 0;
+int maxLivesPerGame = 3;
+int numberOfGames = 50;
+
+
+//Images and font
+PImage backgroundImage;
+PImage heroTwoImage;
+PImage heroImage;
+/* https://www.remove.bg/
+ **was used to convert images to png
+ */
+PImage villainImage;
+PImage fireImage;
+PFont myFont;
+
+
+void setup() {
+  size(1280, 720);
+  noCursor();
+  
+  backgroundImage = loadImage("back.png");
+  heroTwoImage = loadImage("hero-2.png");
+  fireImage=loadImage("fire.png");
+  heroImage=loadImage("hero.png");
+  villainImage=loadImage("villain.png");
+
+  //Setting hero, villain and fire
+  hero = new Hero(80);
+  villain = new Villain(60, 60);
+  fire = new Fire(10);
+  patern = new Patern(40,40,2,1);
+
+  //array of objects
+  //while loop
+  int i = 0;
+  while (i<rain.length) {
+    rain[i] = new Rain(10, i+1);
+    i++;
+  }
+  //create a player object with the data entered by the user
+  player = new Player(JOptionPane.showInputDialog("Enter the player name (max 6 chars: "), numberOfGames);
+}
+
+void draw() {
+
+  background(0);
+  patern.backgroundChessPattern();
+  image(backgroundImage, width*.60, height*.33);
+  //display and update methods
+  hero.update();
+  hero.display();
+  fire.update();
+  fire.display();
+  //for loop as above
+
+  for (int i = 0; i<rain.length; i++) {
+    rain[i].update();
+    rain[i].display();
+  }
+
+  scoreboard();
+
+  if (liveLost < maxLivesPerGame) {
+    villain.display();
+    /*
+  ** Collision Detection
+     */
+
+    boolean strike = villainHit (fire, villain);
+    if (strike==true) {
+      score+=1;
+      println(score);
+      fire.resetFire();
+    }
+  }
+  //If the player has no lives left in the current game
+  else {
+    player.addScore(score);
+    
+    int reply = JOptionPane.showConfirmDialog(null,
+      "Game Over! You scored " + score + "! Your max score was " + player.highestScore() +  ".\nWould you like to beat it?",
+      "Play next game?",
+      JOptionPane.YES_NO_OPTION);
+    if (reply == JOptionPane.YES_OPTION) {
+      //player chooses to play the next game
+
+      resetGame();
+    } else {
+
+      gameOver();
+    }
+  }
+
+  villain.update();
+
+
+  /*
+  ** Collision Detection
+   */
+
+  boolean collisionHeroVillain = heroHit(hero, villain);
+  {
+    boolean lifeLost = false;
+    if (collisionHeroVillain==true) {
+      villain.resetVillain();
+      lifeLost = true;
+      liveLost++;
+      println("Lives lost: " + liveLost);
+    }
+  }
+
+  for (int i = 0; i<rain.length; i++) {
+    boolean collisionHeroRain = heroCollectsRain(hero, rain[i]);
+    {
+      if (collisionHeroRain==true) {
+
+        liveLost--;
+        rain[i].resetRain();
+        println("Lives: " + 1);
+      }
+    }
+  }
+
+  /*
+  **Key Handler
+   */
+
+  if (jump==true) {
+    hero.up();
+  }
+
+  if (right==true) {
+    hero.right();
+  }
+
+  if (left==true) {
+    hero.left();
+  }
+
+  if (shoot==true) {
+    fire.setSpeedX(20);
+  }
+}
+
+/*-----------------------------
+ --Key Handler Methods--
+ -----------------------------*/
+
+public void keyPressed() {
+  if (key==32) {
+    shoot=true;
+  }
+  if (key == CODED) {
+    if (keyCode == RIGHT) {
+      right=true;
+    }
+    if (keyCode == LEFT) {
+      left=true;
+    }
+    if (keyCode == UP) {
+      jump=true;
+    }
+  }
+}
+
+public void keyReleased() {
+  if (key == CODED) {
+    if (keyCode == RIGHT) {
+      right=false;
+    }
+    if (keyCode == LEFT) {
+      left=false;
+    }
+    if (keyCode == UP) {
+      jump=false;
+    }
+  }
+}
+
+/*-----------------------------
+ --Collision detection/avoidance methods--
+ -----------------------------*/
+
+boolean villainHit (Fire fire, Villain villain) {
+
+  if (fire.getXCoord()>=villain.getXCoord() &&
+    fire.getXCoord()<=villain.getXCoord()+villain.getVillainWidth() &&
+    fire.getYCoord()>=villain.getYCoord() &&
+    fire.getYCoord()<=villain.getYCoord()+villain.getVillainHeight()) {
+    return true;
+  }
+  return false;
+  //http://www.jeffreythompson.org/collision-detection/point-rect.php
+}
+
+boolean heroHit (Hero hero, Villain villain) {
+
+  if (hero.getXCoord()>=villain.getXCoord() &&
+    hero.getXCoord()<=villain.getXCoord()+villain.getVillainWidth() &&
+    hero.getYCoord()>=villain.getYCoord() &&
+    hero.getYCoord()<=villain.getYCoord()+villain.getVillainHeight()) {
+    return true;
+  }
+  return false;
+  //http://www.jeffreythompson.org/collision-detection/point-rect.php
+}
+
+boolean heroCollectsRain (Hero hero, Rain rain) {
+  //http://www.jeffreythompson.org/collision-detection/circle-circle.php
+  float distX = hero.getXCoord() - rain.getXCoord();
+  float distY = hero.getYCoord() - rain.getYCoord();
+  float distance = sqrt( (distX*distX) + (distY*distY) );
+  if (distance <= hero.getDiameter()/2+rain.getDiameter()/2) {
+    return true;
+  }
+  return false;
+}
+
+/*
+**Other methods
+ */
+
+void resetGame()
+{
+  liveLost = 0;          //resets the lives lost in the current game to zero
+  score = 0;    //resets the score of the current game to zero
+
+  //while loop
+  int i = 0;
+  while (i<rain.length) {
+    rain[i].resetRain(i+1);
+    i++;
+  }
+}
+
+void gameOver()
+{
+  JOptionPane.showMessageDialog(null, player.getPlayerName() + ", your game is over! \n\n"
+
+    + "\n\n"                     + player.toString()
+    + "\n\nHighest Score: "      + player.highestScore()
+    +   "\nLowest Score:  "      + player.lowestScore()
+    +   "\nAverage Score: "      + player.averageScore());
+  exit();
+}
+
+//method to display player name, lives left and score
+void scoreboard() {
+  //https://processing.org/reference/createFont_.html
+  myFont = createFont("Roboto", 50);
+  textFont(myFont);
+
+  text("Player: " + player.getPlayerName(), width*.05, height*.1);
+  text("Score: " + score, width*.75, height*.1);
+  text("Lives: " + (maxLivesPerGame-liveLost), width*.05, height*.2);
+  
+}
+
+ //public String board()
+ //{return sort(player.scores);}
+  //{return text("Lives: " + sort(player.scores), width*.05, height*.2);}
+
+//void backgroundChessPattern() {
+
+//  for (int i=10; i < 15; i++)
+//  {
+//    for (int j=0; j < 40; j++)
+//    {
+//      if ((i + j + 1) % 2 == 0) {
+//        fill(255);
+//        // if (i + j + 1) % 2 == 0, draw white squares
+//        square(40*j, 40*i, random(2)-i);
+//      } else
+//      {
+//        fill(#3370A6);
+//        // else, draw blue squares
+//        square(40*j, 40*i, random(1)-i);
+//      }
+//    }
+//  }
+}
